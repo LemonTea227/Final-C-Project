@@ -12,15 +12,22 @@
 #define EXTERNAL 1
 #define RELOCATABLE 2
 
-/* Helper to build a standard 12-bit word. 
- * ADJUST THESE SHIFTS according to your 2026 course booklet if needed. */
+/*
+ * Function: build_instruction_word
+ * Description: Constructs a 12-bit instruction word using bitwise operations.
+ * The word format: Opcode (bits 8-11), Source mode (bits 4-5), 
+ * Destination mode (bits 2-3), ARE (bits 0-1).
+ * Receives: opcode (instruction ID 0-15), src_mode (source addressing mode 0-3),
+ * dest_mode (destination addressing mode 0-3).
+ * Returns: A 12-bit unsigned integer representing the encoded instruction word.
+ */
 static unsigned int build_instruction_word(int opcode, int src_mode, int dest_mode) {
     unsigned int word = 0;
-    word |= (opcode << 6);      /* Opcode usually at bits 6-9 */
-    word |= (src_mode << 4);    /* Src mode at bits 4-5 */
-    word |= (dest_mode << 2);   /* Dest mode at bits 2-3 */
-    word |= ABSOLUTE;           /* ARE for instruction word is always Absolute (00) */
-    return word & 0xFFF;        /* Ensure it's 12 bits */
+    word |= (opcode << OPCODE_SHIFT);        /* Opcode at bits 8-11 */
+    word |= (src_mode << SRC_MODE_SHIFT);    /* Src mode at bits 4-5 */
+    word |= (dest_mode << DEST_MODE_SHIFT);  /* Dest mode at bits 2-3 */
+    word |= ABSOLUTE;                        /* ARE for instruction is Absolute (00) */
+    return word & WORD_MASK;                 /* Ensure it's 12 bits */
 }
 
 /*
@@ -35,7 +42,7 @@ int execute_second_pass(const char *base_filename, symbol_node *sym_table, int i
     FILE *am_file, *ob_file, *ent_file, *ext_file;
     char filename[MAX_FILE_NAME];
     char line[MAX_LINE_LEN];
-    int current_ic = 100;
+    int current_ic = START_ADDR;
     int error_found = 0;
     int line_num = 0;
     int has_entry = 0, has_extern = 0;
@@ -59,7 +66,7 @@ int execute_second_pass(const char *base_filename, symbol_node *sym_table, int i
     }
 
     /* Print Object File Header */
-    fprintf(ob_file, "  %d %d\n", ic - 100, dc);
+    fprintf(ob_file, "  %d %d\n", ic - START_ADDR, dc);
 
     while (fgets(line, MAX_LINE_LEN, am_file) != NULL) {
         char *token;
@@ -107,17 +114,17 @@ int execute_second_pass(const char *base_filename, symbol_node *sym_table, int i
             token = strtok(NULL, " ,\t\n\r");
             while (token != NULL) {
                 if (token[0] == 'r') { /* Register */
-                    fprintf(ob_file, "%04d\t%03X\n", current_ic++, (atoi(&token[1]) << 2) | ABSOLUTE);
+                    fprintf(ob_file, "%04d\t%03X\n", current_ic++, (atoi(&token[1]) << DEST_MODE_SHIFT) | ABSOLUTE);
                 } else if (token[0] == '#') { /* Immediate */
                     int val = atoi(&token[1]);
-                    fprintf(ob_file, "%04d\t%03X\n", current_ic++, ((val << 2) | ABSOLUTE) & 0xFFF);
+                    fprintf(ob_file, "%04d\t%03X\n", current_ic++, ((val << DEST_MODE_SHIFT) | ABSOLUTE) & WORD_MASK);
                 } else { /* Label */
                     /* Clean potential symbols like '%' */
                     char *clean_label = (token[0] == '%' || token[0] == '&') ? token + 1 : token;
                     symbol_node *sym = find_symbol(sym_table, clean_label);
                     if (sym != NULL) {
                         int are = (sym->type == SYMBOL_TYPE_EXTERNAL) ? EXTERNAL : RELOCATABLE;
-                        fprintf(ob_file, "%04d\t%03X\n", current_ic++, ((sym->address << 2) | are) & 0xFFF);
+                        fprintf(ob_file, "%04d\t%03X\n", current_ic++, ((sym->address << DEST_MODE_SHIFT) | are) & WORD_MASK);
                         if (are == EXTERNAL) {
                             fprintf(ext_file, "%s\t%04d\n", clean_label, current_ic - 1);
                             has_extern = 1;

@@ -7,9 +7,8 @@
 #include "first_pass.h"
 #include <ctype.h>
 
-/* Defines for addressing modes and instruction sizes */
-#define START_IC 100
-#define MAX_OPCODES 16
+/* Defines for instruction encoding and validation */
+#define MAX_OPCODES NUM_OPCODES
 
 /* Opcode Table Structure */
 typedef struct {
@@ -26,13 +25,23 @@ static op_struct opcodes[MAX_OPCODES] = {
     {"prn", 12, 1}, {"jsr", 13, 1}, {"rts", 14, 0}, {"stop", 15, 0}
 };
 
-/* Helper: skip whitespaces */
+/*
+ * Helper: skip_white_spaces
+ * Description: Skips leading whitespace characters in a string.
+ * Receives: str (pointer to string).
+ * Returns: Pointer to first non-whitespace character.
+ */
 static char *skip_white_spaces(char *str) {
     while (*str && isspace((unsigned char)*str)) str++;
     return str;
 }
 
-/* Helper: check if a string is a valid opcode */
+/*
+ * Helper: is_opcode
+ * Description: Searches the opcode table for a matching instruction name.
+ * Receives: word (instruction name string to search for).
+ * Returns: Opcode index (0-15) if found, -1 if not found.
+ */
 static int is_opcode(const char *word) {
     int i;
     for (i = 0; i < MAX_OPCODES; i++) {
@@ -63,7 +72,7 @@ int execute_first_pass(const char *base_filename, symbol_node **sym_table, int *
         return 0;
     }
 
-    *ic = START_IC;
+    *ic = START_ADDR;
     *dc = 0;
 
     while (fgets(line, MAX_LINE_LEN, am_file) != NULL) {
