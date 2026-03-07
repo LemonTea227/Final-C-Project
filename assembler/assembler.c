@@ -5,6 +5,10 @@
  */
 
 #include "globals.h"
+#include "pre_assembler.h"
+#include "first_pass.h"
+#include "second_pass.h"
+#include "symbols.h"
 
 /*
  * Function: main

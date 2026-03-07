@@ -59,7 +59,7 @@ int execute_second_pass(const char *base_filename, symbol_node *sym_table, int i
     }
 
     /* Print Object File Header */
-    fprintf(ob_file, "  %d %d\n", final_ic - 100, final_dc);
+    fprintf(ob_file, "  %d %d\n", ic - 100, dc);
 
     while (fgets(line, MAX_LINE_LEN, am_file) != NULL) {
         char *token;
@@ -138,9 +138,18 @@ int execute_second_pass(const char *base_filename, symbol_node *sym_table, int i
     fclose(ext_file);
 
     /* Clean up empty files if no entries/externals existed or on error */
-    if (!has_entry || error_found) remove(sprintf(filename, "%s.ent", base_filename), filename);
-    if (!has_extern || error_found) remove(sprintf(filename, "%s.ext", base_filename), filename);
-    if (error_found) remove(sprintf(filename, "%s.ob", base_filename), filename);
+    if (!has_entry || error_found) {
+        sprintf(filename, "%s.ent", base_filename);
+        remove(filename);
+    }
+    if (!has_extern || error_found) {
+        sprintf(filename, "%s.ext", base_filename);
+        remove(filename);
+    }
+    if (error_found) {
+        sprintf(filename, "%s.ob", base_filename);
+        remove(filename);
+    }
 
     return !error_found;
 }
