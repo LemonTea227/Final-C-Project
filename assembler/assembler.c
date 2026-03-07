@@ -40,25 +40,39 @@ int main(int argc, char *argv[]) {
 void process_file(char *base_filename) {
     FILE *fp;
     char full_filename[MAX_FILE_NAME];
+    symbol_node *symbol_table = NULL;
+    int ic, dc;
 
-    /* Append .as extension */
     sprintf(full_filename, "%s.as", base_filename);
-
-    /* Open file and check for success */
     fp = fopen(full_filename, "r");
     if (fp == NULL) {
-        fprintf(stderr, "Error: Cannot open file '%s' for reading.\n", full_filename);
-        return; /* Skip to the next file */
+        fprintf(stderr, "Error: Cannot open file '%s'\n", full_filename);
+        return;
     }
 
-    printf("Processing file: %s\n", full_filename);
+    printf("Processing %s...\n", full_filename);
 
-    /* * TODO: Implement the calls to your logical modules here:
-     * 1. execute_pre_assembler(fp, base_filename);
-     * 2. execute_first_pass(...);
-     * 3. execute_second_pass(...);
-     */
+    /* 1. Pre-Assembler */
+    if (!execute_pre_assembler(fp, base_filename)) {
+        fclose(fp);
+        return;
+    }
+    fclose(fp); /* Done with .as file */
 
-    /* Close the file properly */
-    fclose(fp);
+    /* 2. First Pass */
+    if (!execute_first_pass(base_filename, &symbol_table, &ic, &dc)) {
+        printf("Errors found in first pass. Stopping processing for %s.\n", base_filename);
+        free_symbol_table(symbol_table);
+        return;
+    }
+
+    /* 3. Second Pass */
+    if (!execute_second_pass(base_filename, symbol_table, ic, dc)) {
+        printf("Errors found in second pass. Stopping processing for %s.\n", base_filename);
+    } else {
+        printf("Successfully compiled %s.\n", base_filename);
+    }
+
+    /* Cleanup */
+    free_symbol_table(symbol_table);
 }
