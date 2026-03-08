@@ -2,11 +2,9 @@
 #include "macro.h"
 #include <ctype.h>
 
-/* 
- * Helper: skip_whitespaces
- * Description: Skips leading whitespace characters in a string.
- * Receives: str (pointer to string).
- * Returns: Pointer to first non-whitespace character.
+/*
+ * Skips leading whitespace characters in a string.
+ * Returns pointer to first non-whitespace character.
  */
 char *skip_whitespaces(char *str) {
     while (*str && isspace((unsigned char)*str)) str++;
@@ -14,13 +12,16 @@ char *skip_whitespaces(char *str) {
 }
 
 /*
- * Function: execute_pre_assembler
- * Description: Preprocesses an assembly file by expanding macro definitions.
- * Reads a .as file, identifies macro definitions (mcro...mcroend),
- * and outputs an expanded .am file with macro calls replaced by their bodies.
- * Receives: input_file (open FILE pointer to .as file), 
- * base_filename (file name without extension).
- * Returns: 1 if successful, 0 if file creation failed.
+ * Performs macro expansion (pre-assembler phase):
+ *   - Reads a .as file, identifies macro definitions (mcro...mcroend)
+ *   - Outputs an expanded .am file with macro calls replaced by their bodies
+ *   - Reports errors if output file cannot be created
+ *
+ * Parameters:
+ *   input_file    - open FILE pointer to .as file
+ *   base_filename - file name without extension
+ * Returns:
+ *   1 if successful, 0 if file creation failed
  */
 int execute_pre_assembler(FILE *input_file, const char *base_filename) {
     FILE *output_file;

@@ -1,17 +1,15 @@
 /*
- * File: utils.c
- * Description: Contains utility functions used across the assembler program, 
- * such as safe memory allocation.
+ * utils.c
+ * Utility functions for the assembler, such as safe memory allocation.
  */
 
 #include "globals.h"
 
 /*
- * Function: safe_malloc
- * Description: Allocates memory and immediately checks if the allocation was successful.
- * If the allocation fails, it prints an error and terminates the program.
- * Receives: size (the amount of bytes to allocate).
- * Returns: A pointer to the allocated memory.
+ * Allocates memory and checks if the allocation was successful.
+ * If allocation fails, prints an error and terminates the program.
+ * Parameter: size - number of bytes to allocate.
+ * Returns: pointer to the allocated memory.
  */
 void *safe_malloc(size_t size) {
     void *ptr = malloc(size);

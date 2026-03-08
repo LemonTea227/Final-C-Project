@@ -1,11 +1,11 @@
 #include "macro.h"
 
 /*
- * Function: add_macro
- * Description: Adds a new macro definition to the macro table linked list.
- * Receives: head (pointer to macro table head), name (macro name), 
- * content (macro body text).
- * Returns: None.
+ * Adds a new macro definition to the macro table linked list.
+ * Parameters:
+ *   head    - pointer to macro table head
+ *   name    - macro name
+ *   content - macro body text
  */
 void add_macro(macro_node **head, const char *name, const char *content) {
     macro_node *new_node = (macro_node *)safe_malloc(sizeof(macro_node));
@@ -27,10 +27,8 @@ void add_macro(macro_node **head, const char *name, const char *content) {
 }
 
 /*
- * Function: find_macro
- * Description: Searches for a macro by name in the macro table.
- * Receives: head (macro table head), name (macro name to search for).
- * Returns: Pointer to macro_node if found, NULL otherwise.
+ * Searches for a macro by name in the macro table.
+ * Returns pointer to macro_node if found, NULL otherwise.
  */
 macro_node *find_macro(macro_node *head, const char *name) {
     macro_node *current = head;

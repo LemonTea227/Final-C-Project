@@ -1,7 +1,9 @@
 /*
- * File: second_pass.c
- * Description: Executes the second pass. Translates instructions into machine code
- * and generates the object (.ob), entry (.ent), and external (.ext) files.
+ * second_pass.c
+ * Implements the second pass of the assembler:
+ *   - Translates instructions into machine code using the symbol table
+ *   - Generates the object (.ob), entry (.ent), and external (.ext) files
+ *   - Reports errors with line numbers and suppresses output files if errors are found
  */
 
 #include "second_pass.h"
@@ -13,13 +15,9 @@
 #define RELOCATABLE 2
 
 /*
- * Function: build_instruction_word
- * Description: Constructs a 12-bit instruction word using bitwise operations.
- * The word format: Opcode (bits 8-11), Source mode (bits 4-5), 
- * Destination mode (bits 2-3), ARE (bits 0-1).
- * Receives: opcode (instruction ID 0-15), src_mode (source addressing mode 0-3),
- * dest_mode (destination addressing mode 0-3).
- * Returns: A 12-bit unsigned integer representing the encoded instruction word.
+ * Constructs a 12-bit instruction word for the assembler output.
+ * Format: Opcode (bits 8-11), Source mode (bits 4-5), Destination mode (bits 2-3), ARE (bits 0-1).
+ * Returns a 12-bit unsigned integer representing the encoded instruction word.
  */
 static unsigned int build_instruction_word(int opcode, int src_mode, int dest_mode) {
     unsigned int word = 0;
@@ -31,12 +29,18 @@ static unsigned int build_instruction_word(int opcode, int src_mode, int dest_mo
 }
 
 /*
- * Function: execute_second_pass
- * Description: Re-scans the .am file, encodes the instructions using the complete symbol table,
- * and writes the final output files.
- * Receives: base_filename (string), sym_table (head of the symbol table),
- * ic (final Instruction Counter), dc (final Data Counter).
- * Returns: 1 if successful, 0 if errors occurred.
+ * Performs the second pass of the assembler:
+ *   - Re-scans the .am file, encodes instructions using the symbol table
+ *   - Writes the .ob, .ent, and .ext output files
+ *   - Reports errors with line numbers, suppresses output files if errors are found
+ *
+ * Parameters:
+ *   base_filename - name of the source file (without extension)
+ *   sym_table     - head of the symbol table
+ *   ic            - final instruction counter
+ *   dc            - final data counter
+ * Returns:
+ *   1 if successful, 0 if any error occurred
  */
 int execute_second_pass(const char *base_filename, symbol_node *sym_table, int ic, int dc) {
     FILE *am_file, *ob_file, *ent_file, *ext_file;

@@ -1,7 +1,10 @@
 /*
- * File: first_pass.c
- * Description: Executes the first pass. Updates the Instruction Counter (IC) 
- * and Data Counter (DC), and populates the symbol table.
+ * first_pass.c
+ * Implements the first pass of the assembler:
+ *   - Builds the symbol table (labels, addresses, types)
+ *   - Calculates instruction and data addresses (IC, DC)
+ *   - Validates syntax and operand counts for each line in the expanded source (.am) file
+ *   - Reports all errors with line numbers, continues to process the entire file
  */
 
 #include "first_pass.h"
@@ -26,10 +29,8 @@ static op_struct opcodes[MAX_OPCODES] = {
 };
 
 /*
- * Helper: skip_white_spaces
- * Description: Skips leading whitespace characters in a string.
- * Receives: str (pointer to string).
- * Returns: Pointer to first non-whitespace character.
+ * Skips leading whitespace characters in a string.
+ * Returns pointer to first non-whitespace character.
  */
 static char *skip_white_spaces(char *str) {
     while (*str && isspace((unsigned char)*str)) str++;
@@ -37,10 +38,8 @@ static char *skip_white_spaces(char *str) {
 }
 
 /*
- * Helper: is_opcode
- * Description: Searches the opcode table for a matching instruction name.
- * Receives: word (instruction name string to search for).
- * Returns: Opcode index (0-15) if found, -1 if not found.
+ * Checks if a word matches a valid opcode name.
+ * Returns opcode index (0-15) if found, -1 if not found.
  */
 static int is_opcode(const char *word) {
     int i;
@@ -51,11 +50,19 @@ static int is_opcode(const char *word) {
 }
 
 /*
- * Function: execute_first_pass
- * Description: Scans the .am file to build the symbol table and check for basic syntax errors.
- * Receives: base_filename (string), sym_table (pointer to symbol table head), 
- * ic (pointer to Instruction Counter), dc (pointer to Data Counter).
- * Returns: 1 if the pass completed without errors, 0 if syntax errors were found.
+ * Performs the first pass of the assembler:
+ *   - Builds the symbol table (labels, addresses, types)
+ *   - Calculates IC and DC
+ *   - Validates syntax and operand counts for each line in the .am file
+ *   - Reports all errors with line numbers, continues to process the file
+ *
+ * Parameters:
+ *   base_filename - name of the source file (without extension)
+ *   sym_table     - pointer to the head of the symbol table (output)
+ *   ic            - pointer to instruction counter (output)
+ *   dc            - pointer to data counter (output)
+ * Returns:
+ *   1 if no errors were found, 0 if any error was detected
  */
 int execute_first_pass(const char *base_filename, symbol_node **sym_table, int *ic, int *dc) {
     FILE *am_file;

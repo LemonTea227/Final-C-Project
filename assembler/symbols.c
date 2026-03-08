@@ -1,16 +1,17 @@
 /*
- * File: symbols.c
- * Description: Implementation of the Symbol Table management functions.
+ * symbols.c
+ * Implements the symbol table management functions for the assembler.
  */
 
 #include "symbols.h"
 
 /*
- * Function: add_symbol
- * Description: Adds a new symbol to the end of the symbol table linked list.
- * Receives: head (pointer to the head pointer of the list), name (symbol name),
- * address (memory address of the symbol), type (code/data/extern/entry).
- * Returns: None.
+ * Adds a new symbol to the end of the symbol table linked list.
+ * Parameters:
+ *   head    - pointer to the head pointer of the list
+ *   name    - symbol name
+ *   address - memory address of the symbol
+ *   type    - code/data/extern/entry
  */
 void add_symbol(symbol_node **head, const char *name, int address, int type) {
     symbol_node *new_node = (symbol_node *)safe_malloc(sizeof(symbol_node));
@@ -33,10 +34,8 @@ void add_symbol(symbol_node **head, const char *name, int address, int type) {
 }
 
 /*
- * Function: find_symbol
- * Description: Searches for a symbol by its name in the linked list.
- * Receives: head (pointer to the start of the list), name (the symbol name to find).
- * Returns: A pointer to the symbol_node if found, or NULL if not found.
+ * Searches for a symbol by its name in the linked list.
+ * Returns pointer to symbol_node if found, or NULL if not found.
  */
 symbol_node *find_symbol(symbol_node *head, const char *name) {
     symbol_node *current = head;
@@ -50,10 +49,8 @@ symbol_node *find_symbol(symbol_node *head, const char *name) {
 }
 
 /*
- * Function: free_symbol_table
- * Description: Safely frees all memory allocated for the symbol table.
- * Receives: head (pointer to the start of the list).
- * Returns: None.
+ * Frees all memory allocated for the symbol table.
+ * Parameter: head - pointer to the start of the list.
  */
 void free_symbol_table(symbol_node *head) {
     symbol_node *temp;
